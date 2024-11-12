@@ -1,6 +1,7 @@
 package com.works.restcontrollers;
 
 import com.works.entities.Customer;
+import com.works.projections.ICustomerAddres;
 import com.works.services.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,8 @@ public class CustomerRestController {
     }
 
     @GetMapping("list")
-    public List<Customer> list(){
-        return customerService.findAllCustomer();
+    public List<ICustomerAddres> list(){
+        return customerService.getCustomerJoin();
     }
 
 }

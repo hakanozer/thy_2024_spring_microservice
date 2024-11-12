@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Data
-public class Customer {
+public class Customer extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +16,7 @@ public class Customer {
     private String name;
     private String email;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     List<Address> addressList;
 
 

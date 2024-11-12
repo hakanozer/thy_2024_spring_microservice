@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Address {
+public class Address extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

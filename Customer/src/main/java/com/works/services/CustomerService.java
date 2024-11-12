@@ -1,6 +1,7 @@
 package com.works.services;
 
 import com.works.entities.Customer;
+import com.works.projections.ICustomerAddres;
 import com.works.repositories.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,10 @@ public class CustomerService {
 
     public List<Customer> findAllCustomer() {
         return cRepo.findAll();
+    }
+
+    public List<ICustomerAddres> getCustomerJoin() {
+        return cRepo.getCustomerJoin();
     }
 
 }
