@@ -1,6 +1,7 @@
 package com.works.restcontrollers;
 
 import com.works.entities.Product;
+import com.works.models.Customer;
 import com.works.services.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -39,5 +40,16 @@ public class ProductRestController {
     public List<Product> title (@NotEmpty @RequestParam String title) {
         return productService.findTitle(title);
     }
+
+    @GetMapping("getCustomer")
+    public Customer[] getCustomer() {
+        return productService.findAllCustomer();
+    }
+
+    @GetMapping("getCustomerFind")
+    public String getCustomer(@RequestParam String id) {
+        return productService.singleProduct(id);
+    }
+
 
 }
