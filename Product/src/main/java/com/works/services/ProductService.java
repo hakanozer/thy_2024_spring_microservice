@@ -1,13 +1,16 @@
 package com.works.services;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.works.entities.Product;
 import com.works.feignRepositories.ICustomer;
 import com.works.feignRepositories.IDummy;
 import com.works.models.Customer;
 import com.works.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory;
 import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import org.springframework.cloud.client.circuitbreaker.Customizer;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,8 @@ public class ProductService {
     final RestTemplate restTemplateNotConfig;
     final ICustomer iCustomer;
     final IDummy iDummy;
+    final CircuitBreakerFactory circuitBreakerFactory;
+    final Resilience4JCircuitBreakerFactory globalCustomConfiguration;
 
 
     public ResponseEntity save(Product product) {
@@ -75,10 +80,12 @@ public class ProductService {
         return iCustomer.customerList();
     }
 
-    @HystrixCommand(fallbackMethod = "fncFallBackName")
     public String singleProduct(String id) {
-        int i = 1 / 0;
-        return iDummy.products(id);
+        CircuitBreaker circuitBreaker = globalCustomConfiguration.create("circuitbreaker");
+        return circuitBreaker.run(() ->
+                iDummy.products(id), // Başarılı işlem
+                throwable ->fncFallBackName(id) // Hata durumunda fallback fonksiyonu
+        );
     }
 
     public String fncFallBackName(String id) {
