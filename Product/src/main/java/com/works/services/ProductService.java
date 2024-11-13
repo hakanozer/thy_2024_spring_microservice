@@ -10,8 +10,6 @@ import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuit
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
-import org.springframework.cloud.client.circuitbreaker.Customizer;
-import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,7 +79,7 @@ public class ProductService {
     }
 
     public String singleProduct(String id) {
-        CircuitBreaker circuitBreaker = globalCustomConfiguration.create("circuitbreaker");
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
         return circuitBreaker.run(() ->
                 iDummy.products(id), // Başarılı işlem
                 throwable ->fncFallBackName(id) // Hata durumunda fallback fonksiyonu
