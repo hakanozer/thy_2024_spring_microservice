@@ -13,11 +13,14 @@ import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,16 +33,33 @@ public class ProductService {
     final IDummy iDummy;
     final CircuitBreakerFactory circuitBreakerFactory;
     final Resilience4JCircuitBreakerFactory globalCustomConfiguration;
+    final JmsTemplate jmsTemplate;
 
 
     public ResponseEntity save(Product product) {
         try {
             //int i = 1 / 0;
-            productRepository.save(product);
-            return new ResponseEntity(product, HttpStatus.OK);
+            //productRepository.save(product);
+            Runnable rn = () -> {
+                for (int i = 0; i < 1000000; i++) {
+                    Product p = new Product();
+                    p.setTitle(UUID.randomUUID().toString());
+                    p.setPrice(new Random().nextInt(10000));
+                    p.setDetail("Pro Detail");
+                    saveProduct(product);
+                }
+            };
+            new Thread(rn).start();
+
+            return new ResponseEntity("İşleme Alındı", HttpStatus.OK);
         }catch (Exception ex) {
             return new ResponseEntity(product, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    // jsm -> send fnc
+    public void saveProduct( Product product ) {
+        jmsTemplate.convertAndSend("productDest", product);
     }
 
     public List<Product> findAll() {

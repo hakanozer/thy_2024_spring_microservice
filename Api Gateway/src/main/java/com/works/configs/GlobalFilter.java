@@ -1,5 +1,7 @@
 package com.works.configs;
 
+import com.works.entities.Info;
+import com.works.repositories.InfoRepository;
 import io.micrometer.tracing.Tracer;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,7 +17,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class GlobalFilter implements Filter {
 
+    final InfoRepository infoRepo;
     final Tracer tracer;
+    private final InfoRepository infoRepository;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -40,7 +44,10 @@ public class GlobalFilter implements Filter {
 
         response.setHeader("spanId", spanId);
         response.setHeader("traceId", traceId);
-        System.out.println(username + " " + roles + " " + userAgent + " " + ip + " " + url + " " + time + " " + sessionID);
+
+        Info i = new Info(null, spanId, traceId, username, roles, userAgent, ip, url, time, sessionID);
+        infoRepository.save(i);
+
         filterChain.doFilter(request, response);
     }
 
