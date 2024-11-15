@@ -5,6 +5,9 @@ import com.works.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +26,17 @@ public class ProductService {
     }
 
     @Cacheable("product")
-    public List<Product> findAllProduct() {
-        return productRepository.findAll();
+    public Page findAllProduct(int page) {
+        Pageable pageable = PageRequest.of(page, 3);
+        Page productPage = productRepository.findAll(pageable);
+        return productPage;
+    }
+
+    @Cacheable("product")
+    public Page findAllProduct(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page productPage = productRepository.findAll(pageable);
+        return productPage;
     }
 
 }

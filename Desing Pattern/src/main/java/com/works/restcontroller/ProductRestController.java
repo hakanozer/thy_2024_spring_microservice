@@ -3,6 +3,7 @@ package com.works.restcontroller;
 import com.works.entities.Product;
 import com.works.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +21,13 @@ public class ProductRestController {
     }
 
     @GetMapping("list")
-    public List<Product> list() {
-        return productService.findAllProduct();
+    public Page list(@RequestParam Integer page) {
+        return productService.findAllProduct(page);
+    }
+
+    @GetMapping("listFind")
+    public Page list(@RequestParam Integer page, @RequestParam Integer size) {
+        return productService.findAllProduct(page,size);
     }
 
 }
