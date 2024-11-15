@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observer Pattern</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Observer Pattern</h1>
+
+    Observer Pattern, bir nesnenin durumu değiştiğinde, ona abone olan (gözlemleyen) diğer nesnelerin otomatik olarak haberdar olmasını sağlayan bir davranışsal tasarım desenidir. Bu desen, bir nesne (subject) durumu değiştiğinde, ona bağlı olan diğer nesnelerin (observer) tetiklenmesini sağlar.
+    Örnek, bir kullanıcının abonelik durumu değiştiğinde, abone olan diğer nesneleri (Observer) bilgilendirir.
+
+
+    <h2>1. Subject (Observable) - <code>SubscriptionService.java</code></h2>
+    <p>Observer Pattern'deki Subject, durumu değişen nesneyi temsil eder. Bu nesne, gözlemcileri (observers) tutar ve durumu değiştiğinde onlara bildirim yapar.</p>
+    <pre><code>import java.util.ArrayList;
+import java.util.List;
+
+public class SubscriptionService {
+    private List<Observer> observers = new ArrayList<>();
+    private boolean isActive;
+
+    // Abonelik durumu değiştiğinde, gözlemcilere bildirim yapacak
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+        notifyObservers();  // Durum değiştiğinde tüm gözlemcilere bildirim gönder
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    // Gözlemci ekleme
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    // Gözlemci çıkarma
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    // Tüm gözlemcilere bildirim gönderme
+    private void notifyObservers() {
+        for (Observer observer : observers) {
+            observer.update(this);  // Gözlemciyi güncelle
+        }
+    }
+}
+</code></pre>
+
+    <h2>2. Observer (Gözlemci) - <code>Observer.java</code></h2>
+    <p>Observer arayüzü, gözlemcilerin hangi metodları implement edeceğini belirler. Her gözlemci, <code>update</code> metodunu kullanarak Subject'teki değişiklikleri dinler.</p>
+    <pre><code>public interface Observer {
+    void update(SubscriptionService subscriptionService);
+}
+</code></pre>
+
+    <h2>3. Concrete Observer (Abone Gözlemcisi) - <code>UserNotificationService.java</code></h2>
+    <p>Bu sınıf, bir gözlemciyi temsil eder ve durumu dinler. Örneğin, bir kullanıcıya bildirim gönderen servis olabilir.</p>
+    <pre><code>import org.springframework.stereotype.Component;
+
+@Component
+public class UserNotificationService implements Observer {
+
+    @Override
+    public void update(SubscriptionService subscriptionService) {
+        if (subscriptionService.isActive()) {
+            System.out.println("Abonelik aktif! Kullanıcıya bildirim gönderildi.");
+        } else {
+            System.out.println("Abonelik pasif! Kullanıcıya bildirim gönderildi.");
+        }
+    }
+}
+</code></pre>
+
+    <h2>4. Spring Boot Controller - <code>SubscriptionController.java</code></h2>
+    <p>Controller sınıfı, kullanıcı abonelik durumu değişikliklerini yönetir. Gözlemciler, bu değişikliklerden haberdar olurlar.</p>
+    <pre><code>import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/subscription")
+public class SubscriptionController {
+
+    private final SubscriptionService subscriptionService;
+    private final UserNotificationService userNotificationService;
+
+    @Autowired
+    public SubscriptionController(SubscriptionService subscriptionService, UserNotificationService userNotificationService) {
+        this.subscriptionService = subscriptionService;
+        this.userNotificationService = userNotificationService;
+        
+        // Gözlemciyi ekleme
+        this.subscriptionService.addObserver(userNotificationService);
+    }
+
+    @PostMapping("/activate")
+    public String activateSubscription() {
+        subscriptionService.setActive(true);  // Aboneliği aktif et
+        return "Abonelik aktif edildi.";
+    }
+
+    @PostMapping("/deactivate")
+    public String deactivateSubscription() {
+        subscriptionService.setActive(false);  // Aboneliği pasif et
+        return "Abonelik pasif edildi.";
+    }
+
+    @GetMapping("/status")
+    public String getSubscriptionStatus() {
+        return subscriptionService.isActive() ? "Abonelik aktif." : "Abonelik pasif.";
+    }
+}
+</code></pre>
+
+    <h2>5. Spring Boot Uygulama Başlatıcı - <code>Application.java</code></h2>
+    <p>Spring Boot uygulamasını başlatan ana sınıf.</p>
+    <pre><code>import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+</code></pre>
+
+    <h2>6. Kullanım Senaryosu</h2>
+    <p>Bu uygulama ile abonelik durumunu değiştirebilir ve bu değişiklikleri gözlemcilere bildirebilirsiniz:</p>
+    <ul>
+        <li><strong>/subscription/activate</strong> - Aboneliği aktif eder.</li>
+        <li><strong>/subscription/deactivate</strong> - Aboneliği pasif hale getirir.</li>
+        <li><strong>/subscription/status</strong> - Mevcut abonelik durumunu gösterir.</li>
+    </ul>
+
+    <h2>7. Örnek Çıktı:</h2>
+    <pre><code>1. /subscription/activate
+    Abonelik aktif edildi.
+    Konsol Çıktısı: 
+    Abonelik aktif! Kullanıcıya bildirim gönderildi.
+
+2. /subscription/deactivate
+    Abonelik pasif edildi.
+    Konsol Çıktısı:
+    Abonelik pasif! Kullanıcıya bildirim gönderildi.
+
+3. /subscription/status
+    Abonelik aktif.
+</code></pre>
+
+    <h2>Observer Pattern'in Avantajları:</h2>
+    <ul>
+        <li>İçsel durumu değiştiren bir nesne, tüm gözlemcilere bildirim yapabilir.</li>
+        <li>Bağımsız bileşenlerin bir arada çalışmasını sağlar.</li>
+        <li>Gözlemciler yalnızca ihtiyaç duyduklarında güncellenir.</li>
+    </ul>
+
+    <p>Observer Pattern, uygulama içinde nesnelerin birbirinden bağımsız şekilde iletişim kurmasını sağlayan güçlü bir desendir</p>
+</body>
+</html>

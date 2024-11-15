@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Adapter Pattern</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Object Adapter Pattern</h1>
+
+    Object Adapter Pattern, genellikle farklı sınıflar arasındaki uyumsuzlukları çözmek için kullanılır. Bir sınıfın arayüzünü, başka bir sınıfın beklediği arayüze dönüştürmek amacıyla bir adaptör sınıfı kullanılır.
+    
+    <h2>1. Hedef Arayüz - <code>PaymentProcessor.java</code></h2>
+    <p>Bu arayüz, ödeme işlemlerini gerçekleştirmek için kullanılan metodları tanımlar.</p>
+    <pre><code>public interface PaymentProcessor {
+    void processPayment(double amount);
+}
+</code></pre>
+
+    <h2>2. Kaynak Arayüz - <code>LegacyPaymentSystem.java</code></h2>
+    <p>Bu sınıf, eski ödeme sistemini temsil eder ve eski sistemin sunduğu metodları içerir.</p>
+    <pre><code>public class LegacyPaymentSystem {
+    public void makePayment(double amount) {
+        System.out.println("Eski ödeme sistemi ile ödeme yapılıyor: " + amount + " TL");
+    }
+}
+</code></pre>
+
+    <h2>3. Adaptör - <code>PaymentAdapter.java</code></h2>
+    <p>Bu sınıf, eski ödeme sistemini yeni sistemle uyumlu hale getiren adaptördür.</p>
+    <pre><code>public class PaymentAdapter implements PaymentProcessor {
+
+    private final LegacyPaymentSystem legacyPaymentSystem;
+
+    public PaymentAdapter(LegacyPaymentSystem legacyPaymentSystem) {
+        this.legacyPaymentSystem = legacyPaymentSystem;
+    }
+
+    @Override
+    public void processPayment(double amount) {
+        legacyPaymentSystem.makePayment(amount);
+    }
+}
+</code></pre>
+
+    <h2>4. Spring Boot Controller - <code>PaymentController.java</code></h2>
+    <p>REST API ile ödeme işlemi başlatılacak endpoint'i sunar. Bu endpoint ödeme yapılmasını sağlar.</p>
+    <pre><code>import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/payment")
+public class PaymentController {
+
+    private final PaymentProcessor paymentProcessor;
+
+    @Autowired
+    public PaymentController(PaymentProcessor paymentProcessor) {
+        this.paymentProcessor = paymentProcessor;
+    }
+
+    @PostMapping("/pay")
+    public String pay(@RequestParam double amount) {
+        paymentProcessor.processPayment(amount);
+        return "Ödeme başarılı!";
+    }
+}
+</code></pre>
+
+    <h2>5. Spring Boot Uygulama Başlatıcı - <code>Application.java</code></h2>
+    <p>Spring Boot uygulamasının başlatılacağı ana sınıf ve gerekli konfigürasyonlar.</p>
+    <pre><code>import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+    // Bean konfigürasyonu ile adaptör sınıfı kullanılacak
+    @Bean
+    public PaymentProcessor paymentProcessor() {
+        LegacyPaymentSystem legacyPaymentSystem = new LegacyPaymentSystem();
+        return new PaymentAdapter(legacyPaymentSystem);  // Adapter kullanımı
+    }
+}
+</code></pre>
+
+    
+    <p>Object Adapter Pattern, eski sistemlerle uyumsuzluk sorunlarını çözmek için faydalı bir desendir. Bu örnek, Spring Boot ile nasıl kullanılabileceğini ve faydalarını göstermektedir.</p>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Pattern</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Factory Pattern</h1>
+
+    Factory Pattern, nesne oluşturmayı bir sınıfın sorumluluğundan ayırarak, esneklik ve genişletilebilirlik sağlar.
+    ödeme sistemi tasarladığınızı varsayalım. Farklı ödeme yöntemleri (Kredi Kartı, PayPal vb.) destekleyeceksiniz. Her bir ödeme yönteminin farklı bir işlem mantığı var
+
+
+    <h2>1. Ödeme Yöntemi Arayüzü (<code>PaymentMethod.java</code>)</h2>
+    <pre><code>public interface PaymentMethod {
+    void processPayment(double amount);
+}
+</code></pre>
+
+    <h2>2. Kredi Kartı Ödeme Yöntemi (<code>CreditCardPayment.java</code>)</h2>
+    <pre><code>public class CreditCardPayment implements PaymentMethod {
+    @Override
+    public void processPayment(double amount) {
+        System.out.println(amount + " USD has been paid using Credit Card.");
+    }
+}
+</code></pre>
+
+    <h2>3. PayPal Ödeme Yöntemi (<code>PaypalPayment.java</code>)</h2>
+    <pre><code>public class PaypalPayment implements PaymentMethod {
+    @Override
+    public void processPayment(double amount) {
+        System.out.println(amount + " USD has been paid using PayPal.");
+    }
+}
+</code></pre>
+
+    <h2>4. Factory Sınıfı (<code>PaymentMethodFactory.java</code>)</h2>
+    <pre><code>public class PaymentMethodFactory {
+    public static PaymentMethod getPaymentMethod(String type) {
+        if (type == null) {
+            return null;
+        }
+        if (type.equalsIgnoreCase("CREDITCARD")) {
+            return new CreditCardPayment();
+        } else if (type.equalsIgnoreCase("PAYPAL")) {
+            return new PaypalPayment();
+        }
+        return null;
+    }
+}
+</code></pre>
+
+    <h2>5. Kullanım (<code>PaymentService.java</code>)</h2>
+    <pre><code>public class PaymentService {
+    public void makePayment(String methodType, double amount) {
+        PaymentMethod paymentMethod = PaymentMethodFactory.getPaymentMethod(methodType);
+        if (paymentMethod != null) {
+            paymentMethod.processPayment(amount);
+        } else {
+            System.out.println("Invalid payment method");
+        }
+    }
+}
+</code></pre>
+
+    <h2>6. Uygulama Testi (<code>Main.java</code>)</h2>
+    <pre><code>public class Main {
+    public static void main(String[] args) {
+        PaymentService paymentService = new PaymentService();
+        
+        // Kredi Kartı ile ödeme
+        paymentService.makePayment("CREDITCARD", 100.0);
+        
+        // PayPal ile ödeme
+        paymentService.makePayment("PAYPAL", 200.0);
+    }
+}
+</code></pre>
+
+</body>
+</html>

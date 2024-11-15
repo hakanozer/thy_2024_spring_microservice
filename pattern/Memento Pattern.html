@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memento Pattern</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 15px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: monospace;
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Memento Pattern Örneği</h1>
+
+    Memento Pattern, bir nesnenin iç durumunu kaydedip, gerektiğinde bu durumu geri almayı sağlayan bir davranışsal tasarım desenidir. Bu deseni Spring Boot uygulamaları için kullanırken, örneğin bir kullanıcının belirli bir ayardaki durumu veya bir işlemin önceki adımlarındaki veriler kaydedilip geri yüklenebilir. Bu, uygulamanın veri tutarlılığını sağlamak ve kullanıcıya eski durumu geri yükleme yeteneği sunmak için kullanışlıdır.
+    Örnek, bir kullanıcının ayarlarını kaydedip geri yükleyen bir durumu simüle edecektir.
+
+
+    <h2>1. Memento Sınıfı (<code>SettingsMemento.java</code>)</h2>
+    <pre><code>public class SettingsMemento {
+    private final String theme;
+    private final String language;
+
+    public SettingsMemento(String theme, String language) {
+        this.theme = theme;
+        this.language = language;
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+}
+</code></pre>
+
+    <h2>2. Originator Sınıfı (<code>Settings.java</code>)</h2>
+    <pre><code>import java.util.ArrayList;
+import java.util.List;
+
+public class Settings {
+    private String theme;
+    private String language;
+
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    // Memento oluşturulması
+    public SettingsMemento saveSettings() {
+        return new SettingsMemento(theme, language);
+    }
+
+    // Memento'dan geri yükleme
+    public void restoreSettings(SettingsMemento memento) {
+        this.theme = memento.getTheme();
+        this.language = memento.getLanguage();
+    }
+}
+</code></pre>
+
+    <h2>3. Caretaker Sınıfı (<code>SettingsManager.java</code>)</h2>
+    <pre><code>import java.util.Stack;
+
+public class SettingsManager {
+    private final Stack<SettingsMemento> mementos = new Stack<>();
+
+    public void save(Settings settings) {
+        mementos.push(settings.saveSettings());
+    }
+
+    public void restore(Settings settings) {
+        if (!mementos.isEmpty()) {
+            settings.restoreSettings(mementos.pop());
+        }
+    }
+}
+</code></pre>
+
+    <h2>4. Spring Boot Controller (<code>SettingsController.java</code>)</h2>
+    <pre><code>import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/settings")
+public class SettingsController {
+    private final Settings settings = new Settings();
+    private final SettingsManager settingsManager = new SettingsManager();
+
+    @PostMapping("/update")
+    public String updateSettings(@RequestParam String theme, @RequestParam String language) {
+        settings.setTheme(theme);
+        settings.setLanguage(language);
+        settingsManager.save(settings);
+        return "Settings updated!";
+    }
+
+    @PostMapping("/restore")
+    public String restoreSettings() {
+        settingsManager.restore(settings);
+        return "Settings restored: Theme = " + settings.getTheme() + ", Language = " + settings.getLanguage();
+    }
+
+    @GetMapping("/current")
+    public String getCurrentSettings() {
+        return "Current settings: Theme = " + settings.getTheme() + ", Language = " + settings.getLanguage();
+    }
+}
+</code></pre>
+
+
+</body>
+</html>

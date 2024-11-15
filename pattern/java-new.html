@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java 8 - Java 23 Özellikleri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        h2 {
+            color: #34495e;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        code {
+            background-color: #f1f1f1;
+            border-radius: 3px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Java 8 - Java 23 Arasında Gelen ve En Çok Kullanılan Özellikler</h1>
+
+    <div class="section">
+        <h2>Java 8 Özellikleri</h2>
+        <p><strong>1. Lambda İfadeleri</strong><br>
+        Java 8 ile gelen en önemli yeniliklerden biri lambda ifadeleridir. Fonksiyonel programlamayı destekler ve kodun okunabilirliğini artırır.
+        <pre><code>List&lt;String&gt; names = Arrays.asList("Ali", "Ayşe", "Mehmet");
+names.forEach(name -&gt; System.out.println(name));</code></pre>
+        Detaylar: Burada <code>forEach</code> metodu ile listedeki her eleman için <code>name -&gt; System.out.println(name)</code> ifadesi çalıştırılır. Lambda sayesinde anonim fonksiyon tanımlanmış olur.</p>
+
+        <p><strong>2. Stream API</strong><br>
+        Büyük veri kümelerini filtrelemek, sıralamak veya dönüştürmek için kullanılır.
+        <pre><code>List&lt;String&gt; names = Arrays.asList("Ali", "Ayşe", "Mehmet", "Ahmet");
+List&lt;String&gt; filteredNames = names.stream()
+                                     .filter(name -&gt; name.startsWith("A"))
+                                     .collect(Collectors.toList());
+System.out.println(filteredNames); // Çıktı: [Ali, Ayşe, Ahmet]</code></pre>
+        Detaylar: <code>filter</code> ile "A" harfiyle başlayan isimler filtrelenir ve sonuç yeni bir liste olarak toplanır.</p>
+
+        <p><strong>3. Optional Sınıfı</strong><br>
+        NullPointerException hatalarını önlemek amacıyla kullanılır.
+        <pre><code>Optional&lt;String&gt; name = Optional.ofNullable("Ali");
+name.ifPresent(System.out::println);</code></pre>
+        Detaylar: <code>ofNullable</code> metodu ile <code>Optional</code> bir değer oluşturulur. <code>ifPresent</code>, değeri null değilse işlemi gerçekleştirir.</p>
+    </div>
+
+    <div class="section">
+        <h2>Java 9 Özellikleri</h2>
+        <p><strong>1. Modül Sistemi</strong><br>
+        Kodları daha iyi organize etmek için kullanılır. Uygulamaların bağımlılıklarını tanımlamak için gereklidir.
+        <pre><code>module-info.java
+module com.example.app {
+    requires java.logging;
+}</code></pre>
+        Detaylar: Modüler yapı, büyük projelerde bağımlılıkları yönetmeyi kolaylaştırır.</p>
+
+        <p><strong>2. Stream API Geliştirmeleri</strong><br>
+        Yeni metotlar eklendi: <code>takeWhile</code>, <code>dropWhile</code>, <code>ofNullable</code>.
+        <pre><code>List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6);
+numbers.stream()
+       .takeWhile(n -&gt; n &lt; 4)
+       .forEach(System.out::println);</code></pre>
+        Detaylar: <code>takeWhile</code>, belirtilen koşul doğru olduğu sürece öğeleri alır. İlk yanlış olduğunda işlemi sonlandırır.</p>
+    </div>
+
+    <div class="section">
+        <h2>Java 10 Özellikleri</h2>
+        <p><strong>1. var Anahtar Kelimesi</strong><br>
+        Değişken türlerini otomatik olarak belirler.
+        <pre><code>var message = "Merhaba Dünya";
+System.out.println(message);</code></pre>
+        Detaylar: <code>var</code>, veri türünü otomatik olarak belirler, ama sadece lokal değişkenler için kullanılır.</p>
+    </div>
+
+    <div class="section">
+        <h2>Java 11 Özellikleri</h2>
+        <p><strong>1. String API Geliştirmeleri</strong><br>
+        <code>isBlank</code>, <code>lines</code>, <code>strip</code>, <code>repeat</code> gibi yeni metotlar eklenmiştir.
+        <pre><code>String text = " Java ";
+System.out.println(text.strip()); // "Java"
+System.out.println("Hello".repeat(3)); // "HelloHelloHello"</code></pre>
+        Detaylar: <code>strip</code> boşlukları kaldırırken, <code>repeat</code> belirtilen sayıda tekrarlama yapar.</p>
+    </div>
+
+    <div class="section">
+        <h2>Java 14 Özellikleri</h2>
+        <p><strong>1. Switch İfadeleri</strong><br>
+        Daha okunabilir bir switch yapısı sağlar.
+        <pre><code>int day = 3;
+String dayName = switch (day) {
+    case 1 -&gt; "Pazartesi";
+    case 2 -&gt; "Salı";
+    case 3 -&gt; "Çarşamba";
+    default -&gt; "Bilinmiyor";
+};
+System.out.println(dayName);</code></pre>
+        Detaylar: Lambda yapısıyla uyumlu ve daha az kodla çalışır.</p>
+    </div>
+
+    <div class="section">
+        <h2>Java 17 Özellikleri</h2>
+        <p><strong>1. Pattern Matching for instanceof</strong><br>
+        <code>instanceof</code> kullanarak doğrudan dönüşüm yapılır.
+        <pre><code>Object obj = "Merhaba";
+if (obj instanceof String s) {
+    System.out.println(s.toUpperCase());
+}</code></pre>
+        Detaylar: <code>s</code> değişkeni <code>instanceof</code> ile otomatik olarak tanımlanır.</p>
+    </div>
+
+    <div class="section">
+        <h2>Java 21 Özellikleri</h2>
+        <p><strong>1. Record Pattern Matching</strong><br>
+        <code>record</code> yapılarıyla veri modellemede kolaylık sağlar.
+        <pre><code>record Point(int x, int y) {}
+
+static void printPoint(Object obj) {
+    if (obj instanceof Point(int x, int y)) {
+        System.out.println("X: " + x + ", Y: " + y);
+    }
+}</code></pre>
+        Detaylar: <code>Point</code> bir <code>record</code> yapısıdır ve bu yapı ile doğrudan veriler işlenebilir.</p>
+
+        <p><strong>2. String Templates (Önizleme)</strong><br>
+        String birleştirmelerini daha kolay hale getirir.
+        <pre><code>String name = "Ali";
+String message = STR."Merhaba, \{name}!";</code></pre>
+        Detaylar: Bu özellik sayesinde, <code>\{}</code> ile değişkenler doğrudan metin içerisine gömülür.</p>
+    </div>
+
+</body>
+</html>
